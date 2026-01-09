@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Courses</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="site-brand"><a href="index.html">Student Registration</a></div>
+        <nav class="site-nav">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="profile.html">Profile</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </nav>
+    </header>
+
+    <main class="page-content">
+        <section class="user-welcome">
+            <h1>Welcome, <span id="dash-username">Student</span>!</h1>
+            <p class="muted">Manage your courses and view your enrollment status below.</p>
+        </section>
+
+        <div class="dashboard-grid">
+            <!-- Enrolled Courses -->
+            <section class="card">
+                <h2>My Enrolled Courses</h2>
+                <div id="enrolled-list" class="course-list">
+                    <p class="loading">Loading your courses...</p>
+                </div>
+            </section>
+
+            <!-- Course Catalog -->
+            <section class="card">
+                <h2>Available Courses</h2>
+                <div id="catalog-list" class="course-list">
+                    <!-- Standard courses for this demo -->
+                    <div class="course-item">
+                        <span>Computer Science 101</span>
+                        <button class="btn btn-primary btn-sm" onclick="addCourse('Computer Science 101')">Add</button>
+                    </div>
+                    <div class="course-item">
+                        <span>Data Structures & Algorithms</span>
+                        <button class="btn btn-primary btn-sm"
+                            onclick="addCourse('Data Structures & Algorithms')">Add</button>
+                    </div>
+                    <div class="course-item">
+                        <span>Web Development</span>
+                        <button class="btn btn-primary btn-sm" onclick="addCourse('Web Development')">Add</button>
+                    </div>
+                    <div class="course-item">
+                        <span>Database Management Systems</span>
+                        <button class="btn btn-primary btn-sm"
+                            onclick="addCourse('Database Management Systems')">Add</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        const username = localStorage.getItem('currentUser');
+        if (!username) {
+            window.location.href = 'index.html';
+        }
+
+        document.getElementById('dash-username').textContent = username;
+
+        async function fetchUserData() {
+            try {
+                const response = await fetch(`/api/user/${username}`);
+                const data = await response.json();
+                renderEnrolledCourses(data.courses);
+            } catch (err) {
+                console.error('Error fetching user data:', err);
+            }
+        }
+
+        function renderEnrolledCourses(courses) {
+            const list = document.getElementById('enrolled-list');
+            if (!courses || courses.length === 0) {
+                list.innerHTML = '<p class="muted">You are not enrolled in any courses yet.</p>';
+                return;
+            }
+
+            list.innerHTML = courses.map(course => `
+                <div class="course-item">
+                    <span>${course}</span>
+                    <button class="btn btn-danger btn-sm" onclick="deleteCourse('${course}')">Remove</button>
+                </div>
+            `).join('');
+        }
+
+        async function addCourse(courseName) {
+            try {
+                const response = await fetch('/api/courses/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, courseName })
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    renderEnrolledCourses(result.courses);
+                } else {
+                    alert(result.error);
+                }
+            } catch (err) {
+                console.error('Error adding course:', err);
+            }
+        }
+
+        async function deleteCourse(courseName) {
+            try {
+                const response = await fetch('/api/courses/delete', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, courseName })
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    renderEnrolledCourses(result.courses);
+                }
+            } catch (err) {
+                console.error('Error deleting course:', err);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+
+        // Initial fetch
+        fetchUserData();
+    </script>
+</body>
+
+</html>

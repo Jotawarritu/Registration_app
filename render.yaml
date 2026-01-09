@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: student-registration-app
+    env: docker
+    plan: free
+    region: ohio
+    dockerContext: .
+    dockerfilePath: Dockerfile
+    healthCheckPath: /
+    envVars:
+      - key: MONGODB_URI
+        sync: false # Set this in the Render Dashboard or use the value provided
+      - key: PORT
+        value: 10000

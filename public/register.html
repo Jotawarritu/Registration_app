@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Register — Student Registration</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="site-brand"><a href="index.html">Student Registration</a></div>
+        <nav class="site-nav"><a href="index.html">Sign In</a></nav>
+    </header>
+    <main class="auth-page">
+        <section class="auth-container">
+            <div class="auth-card">
+                <div class="auth-info">
+                    <h1>Create an account</h1>
+                    <p class="muted">Register to connect with our community and manage your student profile.</p>
+                </div>
+                <form id="registerForm" class="auth-form" onsubmit="handleRegister(event)">
+                    <div class="input-group">
+                        <label for="r-username">Username</label>
+                        <input id="r-username" name="username" type="text" placeholder="your.username" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="r-password">Password</label>
+                        <input id="r-password" name="password" type="password" placeholder="At least 6 characters"
+                            required>
+                    </div>
+                    <div class="input-group">
+                        <label for="r-password2">Confirm password</label>
+                        <input id="r-password2" name="password2" type="password" placeholder="Repeat password" required>
+                    </div>
+                    <div id="r-error" class="form-error" aria-live="polite"></div>
+                    <button class="btn btn-primary" type="submit">Create account</button>
+                    <p class="muted small" style="margin-top:8px">Already registered? <a href="index.html">Sign in</a>
+                    </p>
+                </form>
+            </div>
+        </section>
+    </main>
+    <footer class="site-footer"><small>© <span id="year2"></span> Student Registration</small></footer>
+    <script>
+        document.getElementById('year2').textContent = new Date().getFullYear();
+        async function handleRegister(e) {
+            e.preventDefault();
+            const username = document.getElementById('r-username').value.trim();
+            const password = document.getElementById('r-password').value;
+            const passwordConfirm = document.getElementById('r-password2').value;
+            const err = document.getElementById('r-error');
+            err.textContent = '';
+            if (!username) { err.textContent = 'Please enter a username.'; return; }
+            if (password.length < 6) { err.textContent = 'Password must be at least 6 characters.'; return; }
+            if (password !== passwordConfirm) { err.textContent = 'Passwords do not match.'; return; }
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    localStorage.setItem('currentUser', username);
+                    err.style.color = 'green';
+                    err.textContent = 'Account created — redirecting...';
+                    setTimeout(() => window.location.href = 'dashboard.html', 900);
+                } else {
+                    err.textContent = result.error || 'Registration failed.';
+                }
+            } catch (err) {
+                console.error('Registration error:', err);
+                err.textContent = 'Something went wrong. Please try again.';
+            }
+        }
+    </script>
+</body>
+
+</html>

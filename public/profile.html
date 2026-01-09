@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Your Profile</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="navbar site-header">
+        <div class="site-brand"><a href="index.html">Student Registration</a></div>
+        <nav class="site-nav">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="profile.html">Profile</a>
+        </nav>
+    </div>
+    <div class="container auth-page">
+        <div class="auth-card" style="display: block; width: 100%; max-width: 600px; margin: 0 auto;">
+            <h2>Student Profile</h2>
+            <p><strong>Name:</strong> <span id="profile-name">Test Student</span></p>
+            <p><strong>Email:</strong> student@example.com</p>
+            <p><strong>Course:</strong> B.Tech Computer Science</p>
+            <button class="btn btn-ghost"
+                onclick="localStorage.removeItem('currentUser'); window.location.href='index.html'">Logout</button>
+        </div>
+    </div>
+    <script>
+        const user = localStorage.getItem('currentUser');
+        if (!user) window.location.href = 'index.html';
+        else document.getElementById('profile-name').textContent = user;
+    </script>
+</body>
+
+</html>

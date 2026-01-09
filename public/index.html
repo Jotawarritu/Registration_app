@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Student Registration — Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+    <div class="site-brand"><a href="index.html">Student Registration</a></div>
+    <nav class="site-nav">
+        <a href="index.html">Home</a>
+        <a href="profile.html">Profile</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a class="btn btn-ghost" href="#">Help</a>
+    </nav>
+</header>
+<main class="auth-page">
+    <section class="auth-container">
+        <div class="auth-card">
+            <div class="auth-info">
+                <h1>Welcome back</h1>
+                <p class="muted">Sign in to manage your registrations, view your dashboard, and update your profile.</p>
+                <ul class="tips">
+                    <li>Secure access for students</li>
+                    <li>Fast registration workflow</li>
+                </ul>
+            </div>
+            <form id="loginForm" class="auth-form" onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <input id="username" name="username" type="text" placeholder="your.username" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input id="password" name="password" type="password" placeholder="••••••••" required>
+                </div>
+                <div class="form-row">
+                    <label class="checkbox"><input type="checkbox" id="remember"> Remember me</label>
+                    <a class="link" href="#">Forgot?</a>
+                </div>
+                <div id="error" class="form-error" aria-live="polite"></div>
+                <button class="btn btn-primary" type="submit">Sign In</button>
+                <p class="muted small">Need an account? <a href="register.html">Create one</a></p>
+            </form>
+        </div>
+    </section>
+</main>
+<footer class="site-footer"><small>© <span id="year"></span> Student Registration</small></footer>
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+async function handleLogin(e) {
+    e.preventDefault();
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    const errorEl = document.getElementById('error');
+    errorEl.textContent = '';
+    if (!username || !password) {
+        errorEl.textContent = 'Please enter username and password.';
+        return;
+    }
+    try {
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const result = await response.json();
+        if (response.ok) {
+            localStorage.setItem('currentUser', username);
+            window.location.href = 'dashboard.html';
+        } else {
+            errorEl.textContent = result.error || 'Invalid credentials.';
+        }
+    } catch (err) {
+        console.error('Login error:', err);
+        errorEl.textContent = 'Something went wrong. Please try again.';
+    }
+}
+</script>
+</body>
+</html>
