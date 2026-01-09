@@ -84,6 +84,7 @@ app.get('/api/user/:username', async (req, res) => {
 app.post('/api/courses/add', async (req, res) => {
     try {
         const { username, courseName } = req.body;
+        console.log('Adding course:', { username, courseName });
         const user = await User.findOne({ username });
         if (!user) return res.status(404).json({ error: 'User not found' });
 
@@ -93,8 +94,10 @@ app.post('/api/courses/add', async (req, res) => {
 
         user.courses.push(courseName);
         await user.save();
+        console.log('Course saved successfully:', user.courses);
         res.json({ message: 'Course added', courses: user.courses });
     } catch (err) {
+        console.error('Error adding course:', err);
         res.status(500).json({ error: 'Error adding course' });
     }
 });
@@ -103,13 +106,16 @@ app.post('/api/courses/add', async (req, res) => {
 app.delete('/api/courses/delete', async (req, res) => {
     try {
         const { username, courseName } = req.body;
+        console.log('Deleting course:', { username, courseName });
         const user = await User.findOne({ username });
         if (!user) return res.status(404).json({ error: 'User not found' });
 
         user.courses = user.courses.filter(c => c !== courseName);
         await user.save();
+        console.log('Course deleted successfully:', user.courses);
         res.json({ message: 'Course deleted', courses: user.courses });
     } catch (err) {
+        console.error('Error deleting course:', err);
         res.status(500).json({ error: 'Error deleting course' });
     }
 });
